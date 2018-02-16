@@ -1,21 +1,43 @@
 package com.example.xyzreader.data;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
 /**
  * Created by xayru on 2/7/2018.
  */
-
+@Entity(tableName = "articles_database")
 public class Article {
+    @PrimaryKey
+    @ColumnInfo(name = "_id")
     private String id;
+    @ColumnInfo(name = "server_id")
     private String serverId;
+    @ColumnInfo(name = "title")
     private String title;
+    @ColumnInfo(name = "author")
     private String author;
+    @ColumnInfo(name = "body")
     private String body;
+    @ColumnInfo(name = "thumb_url")
     private String thumbUrl;
+    @ColumnInfo(name = "photo_url")
     private String photoUrl;
+    @ColumnInfo(name = "aspect_ratio")
     private String aspectRatio;
+    @ColumnInfo(name = "published_date")
     private String publishedDate;
 
-    public Article(String id, String serverId, String title, String author, String body, String thumbUrl, String photoUrl, String aspectRatio, String publishedDate) {
+    public Article(String id
+            , String serverId
+            , String title
+            , String author
+            , String body
+            , String thumbUrl
+            , String photoUrl
+            , String aspectRatio
+            , String publishedDate) {
         this.id = id;
         this.serverId = serverId;
         this.title = title;
@@ -26,8 +48,6 @@ public class Article {
         this.aspectRatio = aspectRatio;
         this.publishedDate = publishedDate;
     }
-
-
 
     public String getId() {
         return id;

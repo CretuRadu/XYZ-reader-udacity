@@ -1,5 +1,6 @@
 package com.example.xyzreader.data;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
@@ -13,22 +14,27 @@ import java.util.List;
  * Created by xayru on 2/7/2018.
  */
 @Dao
-public class ArticleDao {
+public interface ArticleDao {
 
-    public interface UserDao {
+    @Query("SELECT * FROM articles_database ORDER BY title ASC")
+    LiveData<List<Article>> getAricles();
 
-        @Query("SELECT * FROM articles")
-        List<Article> getAricles();
+    @Query("DELETE FROM articles")
+    void deleteAll();
 
-        @Insert(onConflict = OnConflictStrategy.REPLACE)
-        public void insertUsers(Article... articles);
+    @Query("SELECT * FROM articles_database WHERE _id = :id")
+    Article loadArticleById(int id);
 
-        @Update
-        public void updateUsers(Article... articles);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertArticles(List<Article> articles);
 
-        @Delete
-        public void deleteUsers(Article... articles);
-    }
+    @Update
+    void updateUsers(Article... articles);
 
+    @Delete
+    void deleteUsers(Article... articles);
 
 }
+
+
+
