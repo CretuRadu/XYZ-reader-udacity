@@ -3,15 +3,18 @@ package com.example.xyzreader.data;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 /**
  * Created by xayru on 2/7/2018.
  */
 @Entity(tableName = "articles_database")
 public class Article {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
+    @NonNull
     @ColumnInfo(name = "_id")
-    private String id;
+    private int id;
     @ColumnInfo(name = "server_id")
     private String serverId;
     @ColumnInfo(name = "title")
@@ -29,8 +32,7 @@ public class Article {
     @ColumnInfo(name = "published_date")
     private String publishedDate;
 
-    public Article(String id
-            , String serverId
+    public Article(String serverId
             , String title
             , String author
             , String body
@@ -38,7 +40,6 @@ public class Article {
             , String photoUrl
             , String aspectRatio
             , String publishedDate) {
-        this.id = id;
         this.serverId = serverId;
         this.title = title;
         this.author = author;
@@ -49,11 +50,11 @@ public class Article {
         this.publishedDate = publishedDate;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 

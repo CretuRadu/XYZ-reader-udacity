@@ -46,10 +46,8 @@ public class UpdaterService extends IntentService {
         sendStickyBroadcast(
                 new Intent(BROADCAST_ACTION_STATE_CHANGE).putExtra(EXTRA_REFRESHING, true));
 
-        ArticleRoomDatabase database = ArticleRoomDatabase.getInstance(getApplicationContext());
 
-        // Delete all items
-        database.articleDao().deleteAll();
+        ArticleRepository articleRepository = new ArticleRepository(getApplication());
 
         try {
             JSONArray array = RemoteEndpointUtil.fetchJsonArray();
@@ -60,19 +58,20 @@ public class UpdaterService extends IntentService {
             for (int i = 0; i < array.length(); i++) {
                 JSONObject object = array.getJSONObject(i);
                 Article article = new Article(
-                        object.getString("_id"),
-                        object.getString("server_id"),
+                        object.getString("id"),
                         object.getString("title"),
                         object.getString("author"),
                         object.getString("body"),
-                        object.getString("thumb_url"),
-                        object.getString("photo_url"),
+                        object.getString("thumb"),
+                        object.getString("photo"),
                         object.getString("aspect_ratio"),
                         object.getString("published_date")
                 );
                 mArticles.add(article);
+                Log.d(TAG, "Article Added");
             }
-            database.articleDao().insertArticles(mArticles);
+            articleRepository.deleteAll();
+            articleRepository.insert(mArticles);
 
         } catch (JSONException e) {
             Log.e(TAG, "Error updating content.", e);

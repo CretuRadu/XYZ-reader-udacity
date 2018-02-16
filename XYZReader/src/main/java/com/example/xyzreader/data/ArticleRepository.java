@@ -24,6 +24,9 @@ public class ArticleRepository {
     LiveData<List<Article>> getAllArticles() {
         return allArticles;
     }
+    void deleteAll(){
+        articleDao.deleteAll();
+    }
 
     public void insert(List<Article> articles) {
         new insertAsyncTask(articleDao).execute(articles);

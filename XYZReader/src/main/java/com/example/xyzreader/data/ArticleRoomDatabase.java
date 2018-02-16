@@ -1,14 +1,19 @@
 package com.example.xyzreader.data;
 
+import android.arch.persistence.db.SupportSQLiteDatabase;
 import android.arch.persistence.room.Database;
 import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
+import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+
+import java.util.List;
 
 /**
  * Created by xayru on 2/7/2018.
  */
-@Database(entities = {Article.class}, version = 1)
+@Database(entities = {Article.class}, version = 3)
 public abstract class ArticleRoomDatabase extends RoomDatabase {
 
     private static final String DB_NAME ="articles_database";
@@ -26,6 +31,29 @@ public abstract class ArticleRoomDatabase extends RoomDatabase {
             }
         }
         return INSTANCE;
+    }
+
+    private static ArticleRoomDatabase.Callback sRoomDatabaseCallback = new RoomDatabase.Callback() {
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            new PopulateDbAsync(INSTANCE).execute();
+        }
+    };
+
+    private static class PopulateDbAsync extends AsyncTask<List<Article>,Void,Void>{
+        private  final ArticleDao mDao;
+
+        PopulateDbAsync(ArticleRoomDatabase database){
+            mDao = database.articleDao();
+        }
+
+        @Override
+        protected Void doInBackground(List<Article> []articles) {
+            mDao.deleteAll();
+            mDao.insertArticles(articles[0]);
+            return null;
+        }
     }
 
 
