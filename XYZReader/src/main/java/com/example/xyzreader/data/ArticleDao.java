@@ -20,8 +20,8 @@ public interface ArticleDao {
     @Query("DELETE FROM articles_database")
     void deleteAll();
 
-    @Query("SELECT * FROM articles_database WHERE _id = :id")
-    Article loadArticleById(int id);
+    @Query("SELECT * FROM articles_database WHERE id = :id")
+    Article getArticleById(int id);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertArticles(List<Article> articles);

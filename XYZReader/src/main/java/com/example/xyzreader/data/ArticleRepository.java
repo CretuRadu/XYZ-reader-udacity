@@ -11,10 +11,11 @@ import java.util.List;
  */
 
 public class ArticleRepository {
+    private Article mArticle;
     private ArticleDao articleDao;
     private LiveData<List<Article>> allArticles;
 
-    ArticleRepository(Application application) {
+    public ArticleRepository(Application application) {
 
         ArticleRoomDatabase database = ArticleRoomDatabase.getInstance(application);
         articleDao = database.articleDao();
@@ -26,6 +27,11 @@ public class ArticleRepository {
     }
     void deleteAll(){
         articleDao.deleteAll();
+    }
+
+   public Article getArticle(int id) {
+        new getArticleAsync(articleDao).execute(new Integer(id));
+        return mArticle;
     }
 
     public void insert(List<Article> articles) {
@@ -44,6 +50,25 @@ public class ArticleRepository {
         protected Void doInBackground(final List<Article>[] articles) {
             asyncArticleDao.insertArticles(articles[0]);
             return null;
+        }
+    }
+
+    private class getArticleAsync extends AsyncTask<Integer, Void, Article> {
+        private ArticleDao asyncArticleDao;
+
+        getArticleAsync(ArticleDao asyncArticleDao) {
+            this.asyncArticleDao = asyncArticleDao;
+        }
+
+        @Override
+        protected Article doInBackground(Integer... integers) {
+            return asyncArticleDao.getArticleById(integers[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Article article) {
+            super.onPostExecute(article);
+            mArticle = article;
         }
     }
 

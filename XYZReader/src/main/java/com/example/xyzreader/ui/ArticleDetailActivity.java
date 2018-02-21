@@ -4,13 +4,16 @@ import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,25 +25,34 @@ import com.example.xyzreader.data.ArticleViewModel;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
 public class ArticleDetailActivity extends AppCompatActivity {
 
-    private int mStartId;
+    private static final String TAG = "ArticleDetailActivity";
+
+    private static final String ARTICLE_ID = "article_id";
+    private long mStartId;
     private ArticleViewModel viewModel;
+    private List<Article> allArticles;
     private int mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
     private int mTopInset;
-
-    private ViewPager mPager;
     private MyPagerAdapter mPagerAdapter;
-    private View mUpButtonContainer;
-    private View mUpButton;
-
+    @BindView(R.id.pager)
+    ViewPager mPager;
+    @BindView(R.id.up_container)
+    View mUpButtonContainer;
+    @BindView(R.id.action_up)
+    View mUpButton;
     @Override
     @TargetApi(20)
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(
@@ -48,19 +60,22 @@ public class ArticleDetailActivity extends AppCompatActivity {
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         }
         setContentView(R.layout.activity_article_detail);
+        ButterKnife.bind(this);
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
-        mPager = (ViewPager) findViewById(R.id.pager);
+        mStartId = getIntent().getExtras().getLong(ARTICLE_ID);
         mPager.setAdapter(mPagerAdapter);
-        mPager.setPageMargin((int) TypedValue
-                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
-        viewModel = new ArticleViewModel(getApplication());
+        mPager.setOffscreenPageLimit(0);
+        Log.d(TAG, "onCreate: start id " + mStartId);
+        viewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
         viewModel.getAllArticles().observe(this, new Observer<List<Article>>() {
+
             @Override
             public void onChanged(@Nullable List<Article> articles) {
+                allArticles = articles;
                 mPagerAdapter.setArticles(articles);
             }
+
         });
 
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -75,21 +90,12 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-
-                updateUpButtonPosition();
             }
         });
 
-        mUpButtonContainer = findViewById(R.id.up_container);
-
-        mUpButton = findViewById(R.id.action_up);
-        mUpButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                onSupportNavigateUp();
-            }
-        });
-
+        mPager.setPageMargin((int) TypedValue
+                .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
+        mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             mUpButtonContainer.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
                 @Override
@@ -97,27 +103,13 @@ public class ArticleDetailActivity extends AppCompatActivity {
                     view.onApplyWindowInsets(windowInsets);
                     mTopInset = windowInsets.getSystemWindowInsetTop();
                     mUpButtonContainer.setTranslationY(mTopInset);
-                    updateUpButtonPosition();
                     return windowInsets;
                 }
             });
         }
 
         if (savedInstanceState == null) {
-            if (getIntent() != null && getIntent().getData() != null) {
-                mSelectedItemId = 0;
-
-            }
-        }
-    }
-
-
-
-
-    public void onUpButtonFloorChanged(int itemId, ArticleDetailFragment fragment) {
-        if (itemId == mSelectedItemId) {
-            mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
-            updateUpButtonPosition();
+            mSelectedItemId = 0;
         }
     }
 
@@ -128,8 +120,27 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
         private List<Article> articles;
+
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
+        }
+
+
+        @Override
+        public int getCount() {
+            return (articles != null) ? articles.size() : 0;
+        }
+
+        void setArticles(List<Article> articles) {
+            this.articles = articles;
+            notifyDataSetChanged();
+
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            Log.d(TAG, "getItem ID: " + position);
+            return ArticleDetailFragment.newInstance(articles.get(position).getId());
         }
 
         @Override
@@ -142,19 +153,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
             }
         }
 
-        @Override
-        public Fragment getItem(int position) {
-            return ArticleDetailFragment.newInstance(articles.get(position).getId());
-        }
 
-        @Override
-        public int getCount() {
-            return (articles != null) ? articles.size() : 0;
-        }
-
-        void setArticles(List<Article> articles) {
-            this.articles = articles;
-            notifyDataSetChanged();
-        }
     }
 }

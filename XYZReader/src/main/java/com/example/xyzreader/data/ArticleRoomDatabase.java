@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by xayru on 2/7/2018.
  */
-@Database(entities = {Article.class}, version = 3)
+@Database(entities = {Article.class}, version = 4)
 public abstract class ArticleRoomDatabase extends RoomDatabase {
 
     private static final String DB_NAME ="articles_database";

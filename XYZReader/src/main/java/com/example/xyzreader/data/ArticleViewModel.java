@@ -13,6 +13,7 @@ import java.util.List;
 public class ArticleViewModel extends AndroidViewModel {
     private ArticleRepository articleRepository;
     private LiveData<List<Article>> allArticles;
+    private Article article;
 
     public ArticleViewModel(Application application) {
         super(application);
@@ -20,8 +21,13 @@ public class ArticleViewModel extends AndroidViewModel {
         allArticles = articleRepository.getAllArticles();
     }
 
+
     public LiveData<List<Article>> getAllArticles() {
         return allArticles;
+    }
+
+    public Article getArticle(int id) {
+        return articleRepository.getArticle(id);
     }
 
     public void insert(List<Article> articles) {

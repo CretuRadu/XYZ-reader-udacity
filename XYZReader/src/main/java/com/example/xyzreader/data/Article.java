@@ -13,7 +13,7 @@ import android.util.Log;
 public class Article {
     @PrimaryKey(autoGenerate = true)
     @NonNull
-    @ColumnInfo(name = "_id")
+    @ColumnInfo(name = "id")
     private int id;
     @ColumnInfo(name = "server_id")
     private String serverId;
