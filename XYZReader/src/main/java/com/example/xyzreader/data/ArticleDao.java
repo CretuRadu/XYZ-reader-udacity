@@ -14,8 +14,8 @@ import java.util.List;
 @Dao
 public interface ArticleDao {
 
-    @Query("SELECT * FROM articles_database ORDER BY title ASC")
-    LiveData<List<Article>> getAricles();
+    @Query("SELECT * FROM articles_database")
+    LiveData<List<Article>> getArticles();
 
     @Query("DELETE FROM articles_database")
     void deleteAll();

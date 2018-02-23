@@ -3,6 +3,7 @@ package com.example.xyzreader.data;
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class ArticleRepository {
 
         ArticleRoomDatabase database = ArticleRoomDatabase.getInstance(application);
         articleDao = database.articleDao();
-        allArticles = articleDao.getAricles();
+        allArticles = articleDao.getArticles();
     }
 
     LiveData<List<Article>> getAllArticles() {
@@ -30,7 +31,7 @@ public class ArticleRepository {
     }
 
    public Article getArticle(int id) {
-        new getArticleAsync(articleDao).execute(new Integer(id));
+        new getArticleAsync(articleDao).execute( id);
         return mArticle;
     }
 
@@ -55,6 +56,7 @@ public class ArticleRepository {
 
     private class getArticleAsync extends AsyncTask<Integer, Void, Article> {
         private ArticleDao asyncArticleDao;
+        private static final String TAG = "getArticleAsync";
 
         getArticleAsync(ArticleDao asyncArticleDao) {
             this.asyncArticleDao = asyncArticleDao;
@@ -68,6 +70,7 @@ public class ArticleRepository {
         @Override
         protected void onPostExecute(Article article) {
             super.onPostExecute(article);
+            Log.d(TAG," On post execute return " + article.getTitle());
             mArticle = article;
         }
     }

@@ -8,7 +8,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -34,11 +33,7 @@ import butterknife.ButterKnife;
 public class ArticleDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "ArticleDetailActivity";
-
-    private static final String ARTICLE_ID = "article_id";
-    private long mStartId;
     private ArticleViewModel viewModel;
-    private List<Article> allArticles;
     private int mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
     private int mTopInset;
@@ -61,21 +56,18 @@ public class ArticleDetailActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_article_detail);
         ButterKnife.bind(this);
-
+        mSelectedItemId = getIntent().getExtras().getInt(Adapter.ARTICLE_ID);
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
-        mStartId = getIntent().getExtras().getLong(ARTICLE_ID);
         mPager.setAdapter(mPagerAdapter);
-        mPager.setOffscreenPageLimit(0);
-        Log.d(TAG, "onCreate: start id " + mStartId);
         viewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
         viewModel.getAllArticles().observe(this, new Observer<List<Article>>() {
-
             @Override
             public void onChanged(@Nullable List<Article> articles) {
-                allArticles = articles;
                 mPagerAdapter.setArticles(articles);
+                mSelectedItemId = getIntent().getIntExtra(Adapter.ARTICLE_ID,0);
+                mPager.setCurrentItem(mSelectedItemId, false);
+                Log.d(TAG, "onChanged: mSelectedItemId = " + mSelectedItemId);
             }
-
         });
 
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -109,7 +101,7 @@ public class ArticleDetailActivity extends AppCompatActivity {
         }
 
         if (savedInstanceState == null) {
-            mSelectedItemId = 0;
+            mSelectedItemId = getIntent().getExtras().getInt(Adapter.ARTICLE_ID);
         }
     }
 
@@ -139,20 +131,20 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Log.d(TAG, "getItem ID: " + position);
-            return ArticleDetailFragment.newInstance(articles.get(position).getId());
+//            return ArticleDetailFragment.newInstance(articles.get(position).getId());
+            return ArticleDetailFragment.newInstance(position);
         }
 
         @Override
         public void setPrimaryItem(ViewGroup container, int position, Object object) {
             super.setPrimaryItem(container, position, object);
+            Log.d(TAG, "setPrimaryItem: Position= " + position);
             ArticleDetailFragment fragment = (ArticleDetailFragment) object;
             if (fragment != null) {
                 mSelectedItemUpButtonFloor = fragment.getUpButtonFloor();
                 updateUpButtonPosition();
             }
         }
-
 
     }
 }

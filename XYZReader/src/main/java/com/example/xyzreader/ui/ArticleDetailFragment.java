@@ -75,6 +75,7 @@ public class ArticleDetailFragment extends Fragment{
     public ArticleDetailFragment() {
     }
 
+
     public static ArticleDetailFragment newInstance(int itemId) {
         Bundle arguments = new Bundle();
         arguments.putInt(ARG_ITEM_ID, itemId);
@@ -89,16 +90,10 @@ public class ArticleDetailFragment extends Fragment{
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getInt(ARG_ITEM_ID);
         }
-        Log.d(TAG, "Item id = "+ mItemId);
 
         viewModel = ViewModelProviders.of(getActivityCast()).get(ArticleViewModel.class);
         articleList = viewModel.getAllArticles().getValue();
-        for (int i = 0; i < articleList.size(); i++) {
-            if (articleList.get(i).getId() == mItemId) {
-                mArticle = articleList.get(i);
-                return;
-            }
-        }
+        mArticle = articleList.get(mItemId);
         setHasOptionsMenu(true);
     }
 

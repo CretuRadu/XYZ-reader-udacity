@@ -22,6 +22,7 @@ public class ArticleViewModel extends AndroidViewModel {
     }
 
 
+
     public LiveData<List<Article>> getAllArticles() {
         return allArticles;
     }

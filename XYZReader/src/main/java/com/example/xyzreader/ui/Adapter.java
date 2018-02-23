@@ -30,7 +30,7 @@ import butterknife.ButterKnife;
 
 public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
     private static final String TAG = "Adapter class";
-    private static final String ARTICLE_ID = "article_id";
+    public static final String ARTICLE_ID = "article_id";
     private List<Article> articles;
     private final LayoutInflater mInflater;
     private Context context;
@@ -54,7 +54,7 @@ public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
             public void onClick(View view) {
                 Intent intent = new Intent(context, ArticleDetailActivity.class);
                 intent.setAction(Intent.ACTION_VIEW);
-                intent.putExtra(ARTICLE_ID, getItemId(vh.getAdapterPosition()));
+                intent.putExtra(ARTICLE_ID, vh.getAdapterPosition());
                 context.startActivity(intent);
             }
         });
