@@ -58,7 +58,12 @@ public class ArticleListActivity extends AppCompatActivity {
                 adapter.setArticles(articles);
             }
         });
-
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refresh();
+            }
+        });
         if (savedInstanceState == null) {
             refresh();
         }
