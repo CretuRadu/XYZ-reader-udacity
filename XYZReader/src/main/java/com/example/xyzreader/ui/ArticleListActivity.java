@@ -1,15 +1,21 @@
 package com.example.xyzreader.ui;
 
+import android.app.Activity;
+import android.app.SharedElementCallback;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -21,6 +27,7 @@ import com.example.xyzreader.data.ArticleViewModel;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,7 +39,7 @@ import butterknife.ButterKnife;
  * activity presents a grid of items as cards.
  */
 public class ArticleListActivity extends AppCompatActivity {
-
+    private int columns;
     private static final String TAG = ArticleListActivity.class.toString();
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
@@ -46,11 +53,15 @@ public class ArticleListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
         ButterKnife.bind(this);
         final Adapter adapter = new Adapter(this);
+        if (this.getResources().getConfiguration().orientation== Configuration.ORIENTATION_PORTRAIT){
+            columns = 1;
+        }else {
+            columns = 2;
+        }
         mRecyclerView.setAdapter(adapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this,columns));
         viewModel = ViewModelProviders.of(this).get(ArticleViewModel.class);
         viewModel.getAllArticles().observe(this, new Observer<List<Article>>() {
             @Override
@@ -74,6 +85,12 @@ public class ArticleListActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this,newConfig.orientation));
+        super.onConfigurationChanged(newConfig);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         registerReceiver(mRefreshingReceiver,
@@ -92,7 +109,7 @@ public class ArticleListActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (UpdaterService.BROADCAST_ACTION_STATE_CHANGE.equals(intent.getAction())) {
-                mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING, false);
+                mIsRefreshing = intent.getBooleanExtra(UpdaterService.EXTRA_REFRESHING, true);
                 updateRefreshingUI();
             }
         }
@@ -102,6 +119,7 @@ public class ArticleListActivity extends AppCompatActivity {
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
     }
 }
+
 
 
 

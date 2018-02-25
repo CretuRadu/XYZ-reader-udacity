@@ -1,6 +1,7 @@
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_marginBottom="4dp"
     android:layout_marginLeft="4dp"
     android:layout_marginRight="4dp"
@@ -21,8 +22,9 @@
             android:layout_height="1dp"
             android:layout_gravity="center_horizontal"
             android:scaleType="centerCrop"
-
-            android:background="@color/photo_placeholder" />
+            android:background="@color/photo_placeholder"
+            android:transitionName="share_transition"
+            tools:ignore="UnusedAttribute" />
 
         <TextView
             android:id="@+id/article_title"

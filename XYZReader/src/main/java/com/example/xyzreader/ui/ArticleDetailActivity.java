@@ -3,6 +3,7 @@ package com.example.xyzreader.ui;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.SharedElementCallback;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.drawable.ColorDrawable;
@@ -12,17 +13,18 @@ import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.Article;
 import com.example.xyzreader.data.ArticleViewModel;
-
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,14 +47,14 @@ public class ArticleDetailActivity extends AppCompatActivity {
     @BindView(R.id.action_up)
     View mUpButton;
     @Override
-    @TargetApi(20)
+    @TargetApi(21)
     protected void onCreate(Bundle savedInstanceState) {
-
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
                             View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+
         }
         setContentView(R.layout.activity_article_detail);
         ButterKnife.bind(this);
@@ -66,22 +68,19 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 mPagerAdapter.setArticles(articles);
                 mSelectedItemId = getIntent().getIntExtra(Adapter.ARTICLE_ID,0);
                 mPager.setCurrentItem(mSelectedItemId, false);
-                Log.d(TAG, "onChanged: mSelectedItemId = " + mSelectedItemId);
             }
         });
-
         mPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageScrollStateChanged(int state) {
-
                 super.onPageScrollStateChanged(state);
                 mUpButton.animate()
                         .alpha((state == ViewPager.SCROLL_STATE_IDLE) ? 1f : 0f)
                         .setDuration(300);
             }
-
             @Override
             public void onPageSelected(int position) {
+                mSelectedItemId = position;
             }
         });
 
@@ -99,7 +98,12 @@ public class ArticleDetailActivity extends AppCompatActivity {
                 }
             });
         }
-
+        mUpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSupportNavigateUp();
+            }
+        });
         if (savedInstanceState == null) {
             mSelectedItemId = getIntent().getExtras().getInt(Adapter.ARTICLE_ID);
         }
@@ -131,7 +135,6 @@ public class ArticleDetailActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-//            return ArticleDetailFragment.newInstance(articles.get(position).getId());
             return ArticleDetailFragment.newInstance(position);
         }
 
