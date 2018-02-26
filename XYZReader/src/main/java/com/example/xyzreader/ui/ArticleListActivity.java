@@ -1,7 +1,5 @@
 package com.example.xyzreader.ui;
 
-import android.app.Activity;
-import android.app.SharedElementCallback;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
@@ -9,17 +7,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.os.Build;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.Article;
@@ -27,7 +25,6 @@ import com.example.xyzreader.data.ArticleViewModel;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,13 +44,18 @@ public class ArticleListActivity extends AppCompatActivity {
     SwipeRefreshLayout mSwipeRefreshLayout;
     @BindView(R.id.recycler_view)
     RecyclerView mRecyclerView;
+    @BindView(R.id.coordinator)
+    CoordinatorLayout coordinatorLayout;
     private ArticleViewModel viewModel;
+    private boolean connection = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
         ButterKnife.bind(this);
+        connection = haveNetworkConnection();
+        if (!connection) showNoConection();
         final Adapter adapter = new Adapter(this);
         if (this.getResources().getConfiguration().orientation== Configuration.ORIENTATION_PORTRAIT){
             columns = 1;
@@ -78,10 +80,16 @@ public class ArticleListActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             refresh();
         }
+
     }
 
     private void refresh() {
-        startService(new Intent(this, UpdaterService.class));
+        if (!connection) {
+            showNoConection();
+            return;
+        } else {
+            startService(new Intent(this, UpdaterService.class));
+        }
     }
 
     @Override
@@ -93,8 +101,17 @@ public class ArticleListActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        haveNetworkConnection();
+        if (!connection) showNoConection();
         registerReceiver(mRefreshingReceiver,
                 new IntentFilter(UpdaterService.BROADCAST_ACTION_STATE_CHANGE));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!connection) showNoConection();
+        haveNetworkConnection();
     }
 
     @Override
@@ -117,6 +134,27 @@ public class ArticleListActivity extends AppCompatActivity {
 
     private void updateRefreshingUI() {
         mSwipeRefreshLayout.setRefreshing(mIsRefreshing);
+    }
+
+    public void showNoConection() {
+        Snackbar.make(coordinatorLayout, "No internet connectiin", Snackbar.LENGTH_LONG).show();
+    }
+
+    private boolean haveNetworkConnection() {
+        boolean haveConnectedWifi = false;
+        boolean haveConnectedMobile = false;
+
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+        for (NetworkInfo ni : netInfo) {
+            if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                if (ni.isConnected())
+                    haveConnectedWifi = true;
+            if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                if (ni.isConnected())
+                    haveConnectedMobile = true;
+        }
+        return haveConnectedWifi || haveConnectedMobile;
     }
 }
 

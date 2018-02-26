@@ -3,7 +3,6 @@ package com.example.xyzreader.ui;
 import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.SharedElementCallback;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.graphics.drawable.ColorDrawable;
@@ -13,8 +12,6 @@ import android.support.annotation.Nullable;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -23,8 +20,8 @@ import android.view.WindowInsets;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.Article;
 import com.example.xyzreader.data.ArticleViewModel;
+
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
